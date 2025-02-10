@@ -42,11 +42,11 @@ const SingleProduct = () => {
 
   const handleAddToCart = (quantity) => {
     // Handle the "Add to Cart" functionality (e.g., update cart state or call an API to add the product to the cart)
-    // const token = localStorage.getItem('token'); // Assuming JWT token is saved in localStorage
-    // if (!token) {
-    //   navigate('/login'); // Redirect to login if not authenticated
-    //   return;
-    // }
+    const token = localStorage.getItem('token'); // Assuming JWT token is saved in localStorage
+    if (!token) {
+      navigate('/login'); // Redirect to login if not authenticated
+      return;
+    }
 
     axios
       .post(
@@ -55,7 +55,7 @@ const SingleProduct = () => {
       )
       .then((response) => {
         console.log('Added to cart:', response.data.cart);
-        navigate('/cart')
+        navigate(`/cart/${userId}`)
         // Optionally update a cart context or localStorage here
       })
       .catch((error) => {

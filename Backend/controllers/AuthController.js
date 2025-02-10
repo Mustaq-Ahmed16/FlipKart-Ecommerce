@@ -94,19 +94,27 @@ export const login = async (req, res) => {
 
 
 }
+export const forgotPassword = async(req,res)=>{
+  try{
+    const {email} = req.body;
+    if (!email.trim()) return res.status(400).json({ message: "Email Field Required" });
+    const existUser = await User.findOne({ email });
+    if (!existUser) {
+      return res.status(404).json({ message: "Email not Found" });
+    }
+    return res.status(200).json({ message: "Email Verified successfully" });
+  }
+  catch(err){
+    return res.status(500).json({ message: "Internal server error", err });
+  }
+}
 
 
-// Forgot Password Improvement
-export const forgotPassword = async (req, res) => {
+export const resetPassword = async (req, res) => {
   try {
     const { email, confirmPassword } = req.body;
     if (!email.trim() || !confirmPassword.trim()) return res.status(400).json({ message: "All Fields Required" });
-
     const existUser = await User.findOne({ email });
-    if (!existUser) {
-      return res.status(404).json({ message: "User not Found" });
-    }
-
     // Hash the new password before saving
     const hashedPassword = await bcrypt.hash(confirmPassword, 10);
     existUser.password = hashedPassword;

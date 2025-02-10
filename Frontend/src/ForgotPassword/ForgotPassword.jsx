@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import emailjs from '@emailjs/browser';
-import UserData from '../Data/UserData';
 import { useNavigate } from 'react-router-dom';
+import { useEmailContext } from '../context/emailContext';
 
 const ForgotPassword = () => {
-  const [email, setEmail] = useState('');
+  const { email, setEmail } = useEmailContext();
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [otp, setOtp] = useState('');
   const [otpValid, setOtpValid] = useState(false);
   const [generatedOTP, setGeneratedOTP] = useState('');
+  const [emailError, setEmailError] = useState('');
   const navigate = useNavigate();
-  const [id,setId]=useState(''); // Moved inside handleEmailSubmit for cleaner code
 
   const handleEmailChange = (e) => {
     setEmail(e.target.value);
@@ -33,43 +33,49 @@ const ForgotPassword = () => {
       return;
     }
 
-    const validEmail = UserData.find((item) => item.email == email);
-    if (validEmail) {
-      setId(validEmail.userId);
-      console.log(id);
-      console.log(validEmail.email);
+    try {
+      // Call the backend API to verify if the email exists
+      const response = await fetch('http://localhost:8002/forgot-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
 
-      const OTP = generateOTP();
-      console.log(OTP);
-      setGeneratedOTP(OTP);
-      // setIsOtpSent(true);
+      const result = await response.json();
 
-        try {
-          await emailjs.send(
-            'service_cj3hhvw', // Your EmailJS service ID
-            'template_f083738', // Your EmailJS template ID
-            { reply_to: validEmail.email, otp: OTP }, // Replace with your template variables
-            'FUHQjhIfH_TMq8S_V' // Your EmailJS user ID
-          );
-          console.log('Email sent successfully');
-        } catch (error) {
-          console.error('Error sending OTP:', error);
-          alert('Failed to send OTP');
-        }
+      if (response.ok) {
+        // Email is verified successfully, generate OTP
+        setEmail(email);
+        const OTP = generateOTP();
+        console.log(OTP)
+        setGeneratedOTP(OTP);
+        // Send OTP to user via EmailJS
+        await emailjs.send(
+          'service_le8wkeh', // Your EmailJS service ID
+          "template_1k7hh8o",        // Replace with your Template ID
+          { to_email: email, otp: OTP },  // Replace with your template variables
+          "FYPTDyV5lPcrd_Vd0"             // Replace with your User ID
+        );
+        console.log("OTP send to this email :"+email)
+
+        setIsOtpSent(true);
       } else {
-        alert('Email not found!');
+        // Handle email not found or any other error
+        setEmailError(result.message);
       }
-    setIsOtpSent(true);
-    
+    } catch (error) {
+      console.error('Error verifying email:', error);
+      alert('An error occurred while verifying the email.');
+    }
   };
 
   const handleOtpSubmit = (e) => {
     e.preventDefault(); // Prevent page reload
     if (generatedOTP == otp) {
       alert('OTP verified successfully');
-      console.log(id);
-      navigate(`/password-reset/${id}`);
-  
+      navigate(`/password-reset`);
     } else {
       alert('Invalid OTP');
     }
@@ -110,7 +116,9 @@ const ForgotPassword = () => {
                       value={email}
                       onChange={handleEmailChange}
                     />
-                    <button className="flex w-full justify-center rounded-md bg-orange-600 px-3 py-1.5 text-sm font-semibold text-white shadow-xs hover:bg-orange-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600"
+                    {emailError && <div className="text-red-500">{emailError}</div>}
+                    <button
+                      className="flex w-full justify-center rounded-md bg-orange-600 px-3 py-1.5 text-sm font-semibold text-white shadow-xs hover:bg-orange-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600"
                       type="submit"
                       onClick={handleEmailSubmit}
                     >
@@ -135,7 +143,7 @@ const ForgotPassword = () => {
                   <button
                     type="submit"
                     onClick={handleOtpSubmit}
-                      className="flex w-full justify-center rounded-md bg-orange-600 px-3 py-1.5 text-sm font-semibold text-white shadow-xs hover:bg-orange-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600"
+                    className="flex w-full justify-center rounded-md bg-orange-600 px-3 py-1.5 text-sm font-semibold text-white shadow-xs hover:bg-orange-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600"
                     disabled={!otpValid}
                   >
                     Verify OTP
@@ -151,6 +159,3 @@ const ForgotPassword = () => {
 };
 
 export default ForgotPassword;
-
-
-

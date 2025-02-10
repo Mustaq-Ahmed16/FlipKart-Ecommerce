@@ -30,32 +30,21 @@ const orderSchema = new mongoose.Schema(
       type: Number,
       required: true, // Total price of the order
     },
-    status: {
-      type: String,
-      enum: ['pending', 'shipped', 'delivered', 'cancelled'],
-      default: 'pending', // Default to 'pending' status
-    },
-    paymentStatus: {
-      type: String,
-      enum: ['paid', 'unpaid'],
-      default: 'unpaid', // Default to 'unpaid' status
-    },
     shippingAddress: {
       type: String,
       required: true, // The shipping address for the order
     },
     paymentMethod: {
       type: String,
-      enum: ['credit_card', 'paypal', 'bank_transfer'],
       required: true, // Store payment method used
     },
-    shippingMethod: {
+    status: {
       type: String,
-      enum: ['standard', 'express'],
-      required: true, // Shipping method (standard or express)
+      default: 'Pending', // Default to 'pending' status
     },
     paymentDate: {
       type: Date,
+      default: Date.now
     },
     shippingDate: {
       type: Date,

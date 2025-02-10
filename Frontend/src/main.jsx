@@ -5,20 +5,22 @@ import './index.css'
 
 import App from './App.jsx'
 import { BrowserRouter } from 'react-router-dom';
-import { CartProvider } from './Cart/context/CartContext.jsx';
+import { ShopProvider } from './context/shopContext.jsx';
+import { EmailProvider } from './context/emailContext.jsx';
+// import { CartProvider } from './Cart/context/CartContext.jsx';
+
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
 
     <BrowserRouter>
-      {/* <CartProvider> */}
-        <App />
-      {/* </CartProvider> */}
-
-
+      <ShopProvider>
+        <EmailProvider>
+          <App />
+        </EmailProvider>
+      </ShopProvider>
 
     </BrowserRouter>
-
 
 
   </StrictMode>

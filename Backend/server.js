@@ -6,6 +6,7 @@ import AuthRouter from './routes/AuthRoute.js';
 import cors from 'cors'
 import ProductRouter from './routes/ProductRoute.js';
 import CartRouter from './routes/CartRoute.js';
+import OrderRouter from './routes/OrderRoute.js';
 
 
 
@@ -27,4 +28,5 @@ dbConnection();
 app.use(AuthRouter)
 app.use(ProductRouter)
 app.use(CartRouter);
+app.use(OrderRouter);
 

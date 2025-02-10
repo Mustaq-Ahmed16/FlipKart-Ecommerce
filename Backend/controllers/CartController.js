@@ -65,17 +65,12 @@ export const showCart = async(req,res)=>{
   const {userId} = req.params;
   try{
     const cart = await Cart.findOne({ user: userId })
+      .populate('items.product'); // Populate product details in the cart items
     if (!cart) {
       return res.status(400).json({ message: 'Cart and User not found' });
     }
-    const itemsArray = cart.items;
-    const showProducts = []
-    for (const item of itemsArray) {
-      const product = await Product.findById(item.product);
-      showProducts.push(product);
-
-    }
-    return res.status(200).json({ cart, showProducts });
+  
+    return res.status(200).json({ cart });
 
   }
   catch(err)
@@ -84,4 +79,29 @@ export const showCart = async(req,res)=>{
     res.status(500).json({ message: 'Error at server side' });
   }
  
+}
+
+export const removeProductFromCart = async(req,res)=>{
+  const {userId,productId} = req.params;
+  try{
+    const cart = await Cart.findOne({ user: userId }).populate('items.product'); // Populate product details in the cart items;
+    console.log(cart)
+    if(!cart){
+      return res.status(400).json({message:'Cart not Found'});
+    }
+    const updatedItems = cart.items.filter((item)=>item.product._id != productId);
+    console.log("UpadatedItems : "+updatedItems)
+    cart.items = updatedItems;
+    cart.totalAmount = updatedItems.reduce(
+      (acc, item) => acc + item.quantity * item.product.price,
+      0
+    );
+    await cart.save();
+
+    return res.status(200).json({ cart });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error removing product from cart' });
+  }
+
 }

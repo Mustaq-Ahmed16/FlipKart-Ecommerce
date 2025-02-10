@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useShopContext } from '../context/shopContext';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
+  const { user, setUser, isLoggedIn, setIsLoggedIn, username, setUsername } = useShopContext();
 
   useEffect(() => {
     // Check if the token already exists in localStorage
@@ -34,6 +36,9 @@ const Login = () => {
   
         localStorage.setItem("token", token);
         localStorage.setItem('userId',res.data.user._id);
+        setUser(res.data.user);
+        setUsername(res.data.user.username)
+        setIsLoggedIn(true);
         alert("Login Successful");
         clearInput();
         navigate('/'); // Redirect to home after successful login

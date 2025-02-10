@@ -1,14 +1,14 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios';
+import { useShopContext } from '../context/shopContext';
 
 const Signup = () => {
-  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const navigate = useNavigate();
-
+  const { user, setUser, isLoggedIn, setIsLoggedIn, username, setUsername }=useShopContext();
   const clearInput = () => {
     setEmail('');
     setUsername('');
@@ -29,6 +29,9 @@ const Signup = () => {
         const token = res.data.token;
         localStorage.setItem("token", token);
         localStorage.setItem('userId',res.data.user.userId)
+        setUser(res.data.user)
+        setUsername(res.data.user.username)
+        setIsLoggedIn(true);
         alert('Successfully signed up!');
         clearInput();
         navigate('/'); // Optionally, navigate to login page after success
